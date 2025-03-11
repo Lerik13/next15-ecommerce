@@ -5,7 +5,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { prisma } from '@/db/prisma'
 import type { NextAuthConfig } from 'next-auth'
 
-export const config = {
+export const config: NextAuthConfig = {
   pages: {
     signIn: '/sign-in',
     error: '/sign-in',
