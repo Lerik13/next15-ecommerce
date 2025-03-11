@@ -10,7 +10,7 @@ export async function signInWithCredentials(
   formData: FormData
 ) {
   try {
-    const user = signInFormSchema({
+    const user = signInFormSchema.parse({
       email: formData.get('email'),
       password: formData.get('password'),
     })
