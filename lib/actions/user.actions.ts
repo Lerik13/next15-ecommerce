@@ -1,8 +1,8 @@
 'use server'
 
 import { isRedirectError } from 'next/dist/client/components/redirect'
-import { signIn, signOut } from '@/auth'
 import { signInFormSchema } from '../validators'
+import { signIn, signOut } from '@/auth'
 
 // Sign in User with credentials
 export async function signInWithCredentials(
@@ -14,7 +14,6 @@ export async function signInWithCredentials(
       email: formData.get('email'),
       password: formData.get('password'),
     })
-
     await signIn('credentials', user)
 
     return { success: true, message: 'Signed in successfully' }
@@ -23,6 +22,7 @@ export async function signInWithCredentials(
       throw error
     }
 
+    console.error('Sign-in error:', error)
     return { success: false, message: 'Invalid email or password' }
   }
 }

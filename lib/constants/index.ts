@@ -9,5 +9,5 @@ export const LATEST_PRODUCTS_LIMIT = Number(
 )
 export const signInDefaultValues = {
   email: 'lerik13@gmail.com',
-  password: '123456',
+  password: 'lera123456',
 }
