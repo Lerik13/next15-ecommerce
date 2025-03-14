@@ -11,3 +11,9 @@ export const signInDefaultValues = {
   email: 'lerik13@gmail.com',
   password: 'lera123456',
 }
+export const signUpDefaultValues = {
+  name: 'User2',
+  email: 'user2@example.com',
+  password: '123456',
+  confirmPassword: '123456',
+}

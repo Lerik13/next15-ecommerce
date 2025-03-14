@@ -1,10 +1,10 @@
 'use server'
 
-import { isRedirectError } from 'next/dist/client/components/redirect'
-import { hashSync } from 'bcrypt-ts-edge'
-import { signInFormSchema, signUpFormSchema } from '../validators'
 import { signIn, signOut } from '@/auth'
 import { prisma } from '@/db/prisma'
+import { hashSync } from 'bcrypt-ts-edge'
+import { isRedirectError } from 'next/dist/client/components/redirect'
+import { signInFormSchema, signUpFormSchema } from '../validators'
 
 // Sign in User with credentials
 export async function signInWithCredentials(
@@ -25,7 +25,7 @@ export async function signInWithCredentials(
       throw error
     }
 
-    console.error('Sign-in error:', error)
+    //console.error('Sign-in error:', error)
     return { success: false, message: 'Invalid email or password' }
   }
 }
@@ -64,11 +64,12 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
 
     return { success: true, message: 'User registered successfully' }
   } catch (error) {
+    console.error('Error during user creation:', error)
+
     if (isRedirectError(error)) {
       throw error
     }
 
-    console.error('Sign-up error:', error)
-    return { success: false, message: 'User was not registered' }
+    return { success: false, message: 'User was not registered', error }
   }
 }
