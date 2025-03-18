@@ -5,9 +5,9 @@ import { prisma } from '@/db/prisma'
 import { convertToPlainObject, formatError, round2 } from '@/lib/utils'
 import { cartItemSchema, insertCartSchema } from '@/lib/validators'
 import { CartItem } from '@/types'
+import { Prisma } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
-import { Prisma } from '@prisma/client'
 
 // Calculate cart prices
 const calcPrice = (items: CartItem[]) => {
@@ -145,4 +145,61 @@ export async function getMyCart() {
     shippingPrice: cart.shippingPrice.toString(),
     taxPrice: cart.taxPrice.toString(),
   })
+}
+
+export async function removeItemFromCart(productId: string) {
+  try {
+    // Check for Cart cookie
+    const sessionCartId = (await cookies()).get('sessionCartId')?.value
+    if (!sessionCartId) throw new Error('Cart session not found')
+
+    // Get product
+    const product = await prisma.product.findFirst({
+      where: { id: productId },
+    })
+    if (!product) throw new Error('Product not found')
+
+    // Get user cart
+    const cart = await getMyCart()
+    if (!cart) throw new Error('Cart not found')
+
+    // Check for item
+    const existItem = (cart.items as CartItem[]).find(
+      (x) => x.productId === productId
+    )
+    if (!existItem) throw new Error('Item not found')
+
+    // Check if only 1 in qty
+    if (existItem.qty === 1) {
+      // Remove from cart
+      cart.items = (cart.items as CartItem[]).filter(
+        (x) => x.productId !== existItem.productId
+      )
+    } else {
+      // Decrease qty
+      ;(cart.items as CartItem[]).find((x) => x.productId === productId)!.qty =
+        existItem.qty - 1
+    }
+
+    // Update cart in DB
+    await prisma.cart.update({
+      where: { id: cart.id, sessionCartId: cart.sessionCartId },
+      data: {
+        items: cart.items as Prisma.CartUpdateitemsInput[],
+        ...calcPrice(cart.items as CartItem[]),
+      },
+    })
+
+    revalidatePath(`/product/${product.slug}`)
+
+    return {
+      success: true,
+      message: `${product.name} was removed form cart`,
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: formatError(error),
+    }
+  }
 }
