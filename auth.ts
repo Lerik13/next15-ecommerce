@@ -4,6 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { authConfig } from './auth.config'
 import { prisma } from '@/db/prisma'
 import { PrismaAdapter } from '@auth/prisma-adapter'
+import { cookies } from 'next/headers'
 
 export const config = {
   pages: {
@@ -73,6 +74,7 @@ export const config = {
     async jwt({ token, user, trigger, session }: any) {
       // Assign user fields to token
       if (user) {
+        token.id = user.id
         token.role = user.role
 
         // If user has no name, then use the email (first part)
@@ -83,6 +85,30 @@ export const config = {
             where: { id: user.id },
             data: { name: token.name },
           })
+        }
+
+        if (trigger === 'signIn' || trigger === 'signUp') {
+          const cookiesObject = await cookies()
+          const sessionCartId = cookiesObject.get('sessionCartId')?.value
+
+          if (sessionCartId) {
+            const sessionCart = await prisma.cart.findFirst({
+              where: { sessionCartId },
+            })
+
+            if (sessionCart) {
+              // Delete current user cart
+              await prisma.cart.deleteMany({
+                where: { userId: user.id },
+              })
+
+              // Assign new cart
+              await prisma.cart.update({
+                where: { id: sessionCart.id },
+                data: { userId: user.id },
+              })
+            }
+          }
         }
       }
 
