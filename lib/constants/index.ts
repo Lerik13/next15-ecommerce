@@ -12,16 +12,16 @@ export const signInDefaultValues = {
   password: 'lera123456',
 }
 export const signUpDefaultValues = {
-  name: 'User',
-  email: 'user@example.com',
-  password: '123456',
-  confirmPassword: '123456',
+  name: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
 }
 
 export const shippingAddressDefaultValues = {
-  fullName: 'John Doe',
-  streetAddress: '123 Main st',
-  city: 'London',
-  postalCode: '12345',
-  country: 'England',
+  fullName: '',
+  streetAddress: '',
+  city: '',
+  postalCode: '',
+  country: '',
 }
