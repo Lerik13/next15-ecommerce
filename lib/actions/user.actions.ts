@@ -129,7 +129,7 @@ export async function updateUserPaymentMethod(
       data: { paymentMethod: paymentMethod.type },
     })
 
-    return { succes: true, message: 'User updated successfully' }
+    return { success: true, message: 'User updated successfully' }
   } catch (error) {
     return { success: false, message: formatError(error) }
   }
