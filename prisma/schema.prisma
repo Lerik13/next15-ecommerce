@@ -114,7 +114,7 @@ model Order {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  orderitems OrderItem[]
+  orderItems OrderItem[]
 }
 
 model OrderItem {
