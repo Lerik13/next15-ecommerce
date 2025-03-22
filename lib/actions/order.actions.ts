@@ -29,6 +29,7 @@ export async function createOrder() {
         redirectTo: '/cart',
       }
     }
+
     if (!user.address) {
       return {
         success: false,
@@ -36,6 +37,7 @@ export async function createOrder() {
         redirectTo: '/shipping-address',
       }
     }
+
     if (!user.paymentMethod) {
       return {
         success: false,
@@ -50,17 +52,18 @@ export async function createOrder() {
       shippingAddress: user.address,
       paymentMethod: user.paymentMethod,
       itemsPrice: cart.itemsPrice,
-      taxPrice: cart.taxPrice,
       shippingPrice: cart.shippingPrice,
+      taxPrice: cart.taxPrice,
       totalPrice: cart.totalPrice,
     })
-    // Create a transaction to create order and order items in DB
+
+    // Create a transaction to create order and order items in database
     const insertedOrderId = await prisma.$transaction(async (tx) => {
       // Create order
       const insertedOrder = await tx.order.create({ data: order })
-      // Create order items from cart items
+      // Create order items from the cart items
       for (const item of cart.items as CartItem[]) {
-        tx.orderItem.create({
+        await tx.orderItem.create({
           data: {
             ...item,
             price: item.price,
@@ -73,12 +76,13 @@ export async function createOrder() {
         where: { id: cart.id },
         data: {
           items: [],
-          itemsPrice: 0,
           totalPrice: 0,
           taxPrice: 0,
           shippingPrice: 0,
+          itemsPrice: 0,
         },
       })
+
       return insertedOrder.id
     })
 
@@ -86,12 +90,11 @@ export async function createOrder() {
 
     return {
       success: true,
-      message: 'OrderCreated',
-      redirectTo: '/order/${insertedOrderId}',
+      message: 'Order created',
+      redirectTo: `/order/${insertedOrderId}`,
     }
   } catch (error) {
     if (isRedirectError(error)) throw error
-
     return { success: false, message: formatError(error) }
   }
 }

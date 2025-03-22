@@ -101,6 +101,7 @@ export const insertOrderSchema = z.object({
 // Schema for inserting order item
 export const insertOrderItemSchema = z.object({
   productId: z.string(),
+  name: z.string(),
   slug: z.string(),
   image: z.string(),
   price: currency,
