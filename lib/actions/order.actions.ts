@@ -1,13 +1,13 @@
 'use server'
 
 import { auth } from '@/auth'
-import { isRedirectError } from 'next/dist/client/components/redirect'
-import { formatError } from '../utils'
-import { getMyCart } from './cart.actions'
-import { getUserById } from './user.actions'
-import { insertOrderSchema } from '../validators'
 import { prisma } from '@/db/prisma'
 import { CartItem } from '@/types'
+import { isRedirectError } from 'next/dist/client/components/redirect'
+import { convertToPlainObject, formatError } from '../utils'
+import { insertOrderSchema } from '../validators'
+import { getMyCart } from './cart.actions'
+import { getUserById } from './user.actions'
 
 // Create oder and create order items
 export async function createOrder() {
@@ -97,4 +97,19 @@ export async function createOrder() {
     if (isRedirectError(error)) throw error
     return { success: false, message: formatError(error) }
   }
+}
+
+// Get order by Id
+export async function getOrderById(orderId: string) {
+  const data = await prisma.order.findFirst({
+    where: {
+      id: orderId,
+    },
+    include: {
+      orderitems: true,
+      user: { select: { name: true, email: true } },
+    },
+  })
+
+  return convertToPlainObject(data)
 }
