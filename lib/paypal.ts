@@ -3,6 +3,7 @@ const base = process.env.PAYPAL_API_URL || 'https://api-m.sandbox.paypal.com'
 export const paypal = {}
 
 // Generate paypal access token
+
 async function generateAccessToken() {
   const { PAYPAL_CLIENT_ID, PAYPAL_APP_SECRET } = process.env
   const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_APP_SECRET}`).toString(
@@ -13,8 +14,8 @@ async function generateAccessToken() {
     method: 'POST',
     body: 'grant_type=client_credentials',
     headers: {
-      Authorization: 'Basic ${auth}',
-      'Content-type': 'application/x-www-form-urlencoded',
+      Authorization: `Basic ${auth}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
     },
   })
 
@@ -26,3 +27,5 @@ async function generateAccessToken() {
     throw new Error(errorMessage)
   }
 }
+
+export { generateAccessToken }
