@@ -2,6 +2,7 @@
 
 import { auth } from '@/auth'
 import { prisma } from '@/db/prisma'
+import { PAGE_SIZE } from '@/lib/constants/index'
 import { CartItem, PaymentResult } from '@/types'
 import { revalidatePath } from 'next/cache'
 import { isRedirectError } from 'next/dist/client/components/redirect'
@@ -10,7 +11,7 @@ import { convertToPlainObject, formatError } from '../utils'
 import { insertOrderSchema } from '../validators'
 import { getMyCart } from './cart.actions'
 import { getUserById } from './user.actions'
-import { PAGE_SIZE } from '@/lib/constants/index'
+import { Prisma } from '@prisma/client'
 
 // Create oder and create order items
 export async function createOrder() {
@@ -272,4 +273,51 @@ export async function getMyOrders({
   })
 
   return { data, totalPages: Math.ceil(dataCount / limit) }
+}
+
+//-------------------------------------------------------------
+type SalesDataType = {
+  month: string
+  totalSales: number
+}[]
+
+// Get sales data and order summary
+export async function getOrderSummary() {
+  // Get counts for each resources
+  const ordersCount = await prisma.order.count()
+  const productsCount = await prisma.product.count()
+  const usersCount = await prisma.user.count()
+
+  // Calculate thew total sales
+  const totalSales = await prisma.order.aggregate({
+    _sum: { totalPrice: true },
+  })
+
+  // Get monthly sales
+  const salesDataRaw = await prisma.$queryRaw<
+    Array<{ month: string; totalSales: Prisma.Decimal }>
+  >`SELECT to_char("createdAt", 'MM/YY') as "month", sum("totalPrice") as "totalSales" FROM "Order" GROUP BY to_char("createdAt", 'MM/YY')`
+
+  const salesData: SalesDataType = salesDataRaw.map((entry) => ({
+    month: entry.month,
+    totalSales: Number(entry.totalSales),
+  }))
+
+  // Get latest sales
+  const latestSales = await prisma.order.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: {
+      user: { select: { name: true } },
+    },
+    take: 6,
+  })
+
+  return {
+    ordersCount,
+    productsCount,
+    usersCount,
+    totalSales,
+    latestSales,
+    salesData,
+  }
 }
