@@ -52,13 +52,13 @@ export function round2(value: number | string) {
   }
 }
 
+// Format Currency using the formatter
 const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', {
   currency: 'USD',
   style: 'currency',
   minimumFractionDigits: 2,
 })
 
-// Format currency using the formatter above
 export function formatCurrency(amount: number | string | null) {
   if (typeof amount === 'number') {
     return CURRENCY_FORMATTER.format(amount)
@@ -67,6 +67,13 @@ export function formatCurrency(amount: number | string | null) {
   } else {
     return 'NaN'
   }
+}
+
+// Format Number
+const NUMBER_FORMATTER = new Intl.NumberFormat('en-US')
+
+export function formatNumber(number: number) {
+  return NUMBER_FORMATTER.format(number)
 }
 
 // Shorten UUID
