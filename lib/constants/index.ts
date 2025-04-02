@@ -42,7 +42,7 @@ export const productDefaultValues = {
   brand: '',
   description: '',
   price: '0',
-  stock: '0',
+  stock: 0,
   rating: '0',
   numReviews: '0',
   isFeatured: false,
