@@ -23,6 +23,7 @@
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-radio-group": "^1.2.3",
     "@radix-ui/react-slot": "^1.1.2",
+    "@uploadthing/react": "^7.3.0",
     "bcrypt-ts-edge": "^3.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -39,6 +40,7 @@
     "sonner": "^2.0.1",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
+    "uploadthing": "^7.6.0",
     "ws": "^8.18.1",
     "zod": "^3.24.2"
   },
