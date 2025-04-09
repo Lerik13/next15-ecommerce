@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { LATEST_PRODUCTS_LIMIT, PAGE_SIZE } from '../constants'
 import { convertToPlainObject, formatError } from '../utils'
 import { insertProductSchema, updateProductSchema } from '../validators'
+import { deleteImages } from './images.actions'
 
 // Get latest products
 export async function getLatestProducts() {
@@ -22,6 +23,15 @@ export async function getProductBySlug(slug: string) {
   return await prisma.product.findFirst({
     where: { slug: slug },
   })
+}
+
+// Get single product by it's ID
+export async function getProductById(productId: string) {
+  const data = await prisma.product.findFirst({
+    where: { id: productId },
+  })
+
+  return convertToPlainObject(data)
 }
 
 // Get all products
@@ -57,6 +67,16 @@ export async function deleteProduct(id: string) {
       where: { id },
     })
     if (!productExist) throw new Error('Product not found')
+
+    const imagesToBeDeleted = [...productExist.images]
+
+    if (productExist.isFeatured && productExist.banner) {
+      imagesToBeDeleted.push(productExist.banner)
+    }
+
+    const imagesKeys = imagesToBeDeleted.map((image) => image.split('/').pop())
+
+    await deleteImages(imagesKeys as string[])
 
     await prisma.product.delete({ where: { id } })
 

@@ -25,6 +25,8 @@ import {
 } from '../ui/form'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
+import { Trash } from 'lucide-react'
+import { deleteImages } from '@/lib/actions/images.actions'
 
 const ProductForm = ({
   type,
@@ -48,6 +50,7 @@ const ProductForm = ({
   const onSubmit: SubmitHandler<z.infer<typeof insertProductSchema>> = async (
     values
   ) => {
+    // On Create
     if (type === 'Create') {
       const res = await createProduct(values)
       if (!res.success) toast.error(res.message)
@@ -73,6 +76,18 @@ const ProductForm = ({
   const images = form.watch('images')
   const isFeatured = form.watch('isFeatured')
   const banner = form.watch('banner')
+
+  const handleImageRemove = async (removedImage: string) => {
+    // Add removed image to array of images to be deleted upon submission
+    const imageKey = removedImage.split('/').pop() as string
+
+    // remove image from Uploadthing
+    await deleteImages(imageKey)
+
+    // Filter out removed images and update images form value
+    const filteredImages = images.filter((image) => image !== removedImage)
+    form.setValue('images', filteredImages)
+  }
 
   return (
     <Form {...form}>
@@ -239,14 +254,25 @@ const ProductForm = ({
                   <CardContent className='space-y-2 mt-2 min-h-48'>
                     <div className='flex-start space-x-2'>
                       {images.map((image: string) => (
-                        <Image
-                          key={image}
-                          src={image}
-                          alt='product image'
-                          className='w-20 h-20 object-cover object-center rounded-sm'
-                          width={100}
-                          height={100}
-                        />
+                        <div key={image} className='border relative rounded-md'>
+                          <Image
+                            src={image}
+                            alt='product image'
+                            className='w-20 h-20 object-cover object-center rounded-sm'
+                            width={100}
+                            height={100}
+                          />
+                          <Button
+                            variant={'destructive'}
+                            className='absolute top-1 right-1 w-7 h-7 rounded-full'
+                            onClick={() => handleImageRemove(image)}
+                          >
+                            <Trash
+                              className='w-5 h-5'
+                              style={{ color: 'white' }}
+                            />
+                          </Button>
+                        </div>
                       ))}
                       <FormControl>
                         <UploadButton
