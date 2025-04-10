@@ -14,6 +14,7 @@ import { hashSync } from 'bcrypt-ts-edge'
 import { isRedirectError } from 'next/dist/client/components/redirect'
 import { z } from 'zod'
 import { PAGE_SIZE } from '../constants'
+import { revalidatePath } from 'next/cache'
 
 // Sign in User with credentials
 export async function signInWithCredentials(
@@ -179,5 +180,18 @@ export async function getAllUsers({
   return {
     data,
     totalPages: Math.ceil(dataCount / limit),
+  }
+}
+
+// Delete a user
+export async function deleteUser(id: string) {
+  try {
+    await prisma.user.delete({ where: { id } })
+
+    revalidatePath('/admin/users')
+
+    return { success: true, message: 'User deleted successfully' }
+  } catch (error) {
+    return { success: false, message: formatError(error) }
   }
 }
