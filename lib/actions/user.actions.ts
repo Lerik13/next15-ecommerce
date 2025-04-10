@@ -8,13 +8,14 @@ import {
   shippingAddressSchema,
   signInFormSchema,
   signUpFormSchema,
+  updateUserSchema,
 } from '@/lib/validators'
 import { ShippingAddress } from '@/types'
 import { hashSync } from 'bcrypt-ts-edge'
+import { revalidatePath } from 'next/cache'
 import { isRedirectError } from 'next/dist/client/components/redirect'
 import { z } from 'zod'
 import { PAGE_SIZE } from '../constants'
-import { revalidatePath } from 'next/cache'
 
 // Sign in User with credentials
 export async function signInWithCredentials(
@@ -191,6 +192,25 @@ export async function deleteUser(id: string) {
     revalidatePath('/admin/users')
 
     return { success: true, message: 'User deleted successfully' }
+  } catch (error) {
+    return { success: false, message: formatError(error) }
+  }
+}
+
+// Update a user
+export async function updateUser(user: z.infer<typeof updateUserSchema>) {
+  try {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        name: user.name,
+        role: user.role,
+      },
+    })
+
+    revalidatePath('/admin/users')
+
+    return { success: true, message: 'User updated successfully' }
   } catch (error) {
     return { success: false, message: formatError(error) }
   }
