@@ -11,6 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { deleteUser, getAllUsers } from '@/lib/actions/user.actions'
+import { requireAdmin } from '@/lib/auth-guard'
 import { formatId } from '@/lib/utils'
 import { Metadata } from 'next'
 import Link from 'next/link'
@@ -25,6 +26,8 @@ const AdminUsersPage = async (props: {
     query: string
   }>
 }) => {
+  await requireAdmin()
+
   const { page = '1', query: searchText } = await props.searchParams
 
   const users = await getAllUsers({ page: Number(page), query: searchText })
