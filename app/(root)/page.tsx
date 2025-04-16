@@ -1,6 +1,7 @@
 //const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 import ProductCarousel from '@/components/product/product-carousel'
 import ProductList from '@/components/product/product-list'
+import ViewAllProductsButton from '@/components/view-all-products-button'
 import {
   getFeaturedProducts,
   getLatestProducts,
@@ -17,6 +18,7 @@ const HomePage = async () => {
         <ProductCarousel data={featuredProducts} />
       )}
       <ProductList data={latestProducts} title='Newest Arrivals' limit={4} />
+      <ViewAllProductsButton />
     </>
   )
 }
