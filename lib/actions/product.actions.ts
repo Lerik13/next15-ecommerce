@@ -1,13 +1,13 @@
 'use server'
 
 import { prisma } from '@/db/prisma'
+import { Prisma } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { LATEST_PRODUCTS_LIMIT, PAGE_SIZE } from '../constants'
 import { convertToPlainObject, formatError } from '../utils'
 import { insertProductSchema, updateProductSchema } from '../validators'
 import { deleteImages } from './images.actions'
-import { Prisma } from '@prisma/client'
 
 // Get latest products
 export async function getLatestProducts() {
@@ -53,6 +53,7 @@ export async function getAllProducts({
   rating?: string
   sort?: string
 }) {
+  // Query Filter
   const queryFilter: Prisma.ProductWhereInput =
     query && query !== 'all'
       ? {
@@ -63,8 +64,31 @@ export async function getAllProducts({
         }
       : {}
 
+  // Category Filter
+  const categoryFilter = category && category !== 'all' ? { category } : {}
+
+  // Price Filter --  ex: 10-50
+  const priceFilter: Prisma.ProductWhereInput =
+    price && price !== 'all'
+      ? {
+          price: {
+            gte: Number(price.split('-')[0]),
+            lte: Number(price.split('-')[1]),
+          },
+        }
+      : {}
+
+  // Rating Filter
+  const ratingFilter =
+    rating && rating !== 'all' ? { rating: { gte: Number(rating) } } : {}
+
   const data = await prisma.product.findMany({
-    where: { ...queryFilter },
+    where: {
+      ...queryFilter,
+      ...categoryFilter,
+      ...priceFilter,
+      ...ratingFilter,
+    },
     skip: (page - 1) * limit,
     take: limit,
     orderBy: { createdAt: 'desc' },
