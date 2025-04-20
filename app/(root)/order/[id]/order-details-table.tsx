@@ -39,7 +39,6 @@ const OrderDetailsTable = ({
   isAdmin: boolean
 }) => {
   const {
-    id,
     shippingAddress,
     orderitems,
     itemsPrice,
