@@ -13,6 +13,7 @@ import { z } from 'zod'
 export type Product = z.infer<typeof insertProductSchema> & {
   id: string
   rating: string
+  numReviews: number
   createdAt: Date
 }
 
@@ -23,18 +24,16 @@ export type OrderItem = z.infer<typeof insertOrderItemSchema>
 export type Order = z.infer<typeof insertOrderSchema> & {
   id: string
   createdAt: Date
-  isPaid: Boolean
+  isPaid: boolean
   paidAt: Date | null
-  isDelivered: Boolean
+  isDelivered: boolean
   deliveredAt: Date | null
   orderitems: OrderItem[]
   user: { name: string; email: string }
 }
 export type PaymentResult = z.infer<typeof paymentResultSchema>
-export type Review = z.infer<
-  typeof insertReviewSchema & {
-    id: string
-    createdAt: Date
-    user?: { name: string }
-  }
->
+export type Review = z.infer<typeof insertReviewSchema> & {
+  id: string
+  createdAt: Date
+  user?: { name: string }
+}
