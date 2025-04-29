@@ -28,14 +28,17 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
+import StripePayment from './stripe-payment'
 
 const OrderDetailsTable = ({
   order,
   paypalClientId,
+  stripeClientSecret,
   isAdmin,
 }: {
   order: Order
   paypalClientId: string
+  stripeClientSecret: string
   isAdmin: boolean
 }) => {
   const {
@@ -237,7 +240,14 @@ const OrderDetailsTable = ({
                   </PayPalScriptProvider>
                 </div>
               )}
-
+              {/* Stripe Payment */}
+              {!isPaid && paymentMethod === 'Stripe' && stripeClientSecret && (
+                <StripePayment
+                  priceInCents={Number(order.totalPrice) * 100}
+                  orderId={order.id}
+                  clientSecret={stripeClientSecret}
+                />
+              )}
               {/* Cash on Delivery */}
               {isAdmin && !isPaid && paymentMethod === 'CashOnDelivery' && (
                 <MarkAsPaidButton />
